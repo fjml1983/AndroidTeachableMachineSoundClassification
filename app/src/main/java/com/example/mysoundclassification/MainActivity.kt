@@ -28,7 +28,9 @@ class MainActivity : AppCompatActivity() {
 
     // TODO 2.1: defines the model to be used
     //var modelPath = "lite-model_yamnet_classification_tflite_1.tflite"
-    var modelPath = "fjml_si.tflite"
+    //var modelPath = "fjml_si.tflite"
+    var modelPath = "isidro.tflite"
+    var parametroDeteccion = 0.9
 
     // TODO 2.2: defining the minimum threshold
     var probabilityThreshold: Float = 0.3f
@@ -88,7 +90,7 @@ class MainActivity : AppCompatActivity() {
                     textViewOutput.text = outputStr
                 }
 
-                if(theMostProbableScore != null && theMostProbableScore.score > 0.85 && theMostProbableScore.label.endsWith("SI")){
+                if(theMostProbableScore != null && theMostProbableScore.score >= parametroDeteccion && theMostProbableScore.label.endsWith("SI")){
                     runOnUiThread {
                         textViewSuccessLog.text = "Detectado -> " + theMostProbableScore.score.toString() + " \n" + textViewSuccessLog.text.toString()
                     }

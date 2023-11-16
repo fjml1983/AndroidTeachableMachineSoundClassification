@@ -16,11 +16,11 @@ package com.example.mysoundclassification
 
 import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.tensorflow.lite.task.audio.classifier.AudioClassifier
 import java.util.*
+import java.util.Locale.Category
 import kotlin.concurrent.scheduleAtFixedRate
 
 class MainActivity : AppCompatActivity() {
@@ -33,7 +33,8 @@ class MainActivity : AppCompatActivity() {
     // TODO 2.2: defining the minimum threshold
     var probabilityThreshold: Float = 0.3f
 
-    lateinit var textView: TextView
+    lateinit var textViewOutput: TextView
+    lateinit var textViewSuccessLog: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,8 @@ class MainActivity : AppCompatActivity() {
         val REQUEST_RECORD_AUDIO = 1337
         requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO)
 
-        textView = findViewById<TextView>(R.id.output)
+        textViewOutput = findViewById<TextView>(R.id.output)
+        textViewSuccessLog = findViewById<TextView>(R.id.successLog)
         val recorderSpecsTextView = findViewById<TextView>(R.id.textViewAudioRecorderSpecs)
 
         // TODO 2.3: Loading the model from the assets folder
@@ -73,15 +75,27 @@ class MainActivity : AppCompatActivity() {
             }
 
             // TODO 4.3: Creating a multiline string with the filtered results
+
+            val theMostProbableScore = filteredModelOutput.minByOrNull { -it.score }
+
             val outputStr =
                 filteredModelOutput.sortedBy { -it.score }
                     .joinToString(separator = "\n") { "${it.label} -> ${it.score} " }
 
             // TODO 4.4: Updating the UI
-            if (outputStr.isNotEmpty())
+            if (outputStr.isNotEmpty()) {
                 runOnUiThread {
-                    textView.text = outputStr
+                    textViewOutput.text = outputStr
                 }
+
+                if(theMostProbableScore != null && theMostProbableScore.score > 0.85 && theMostProbableScore.label.endsWith("SI")){
+                    runOnUiThread {
+                        textViewSuccessLog.text = "Detectado -> " + theMostProbableScore.score.toString() + " \n" + textViewSuccessLog.text.toString()
+                    }
+                }
+
+
+            }
         }
     }
 }
